@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini 2.5 Pro - Next Gen AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts (Plus Jakarta Sans & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        gemini: {
+                            base: '#0B0F17',
+                            sidebar: '#070A10',
+                            card: '#131926',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            blue: '#4285F4',
+                            purple: '#9B51E0',
+                            cyan: '#00D2FF',
+                            pink: '#FF416C'
+                        }
+                    },
+                    animation: {
+                        'pulse-glow': 'pulseGlow 3s infinite alternate',
+                        'float': 'float 4s ease-in-out infinite',
+                        'spin-slow': 'spin 12s linear infinite',
+                        'note-bounce': 'noteBounce 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%': { boxShadow: '0 0 15px rgba(66, 133, 244, 0.2)' },
+                            '100%': { boxShadow: '0 0 35px rgba(155, 81, 224, 0.5)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' }
+                        },
+                        noteBounce: {
+                            '0%, 100%': { transform: 'translateY(0) scale(1)', opacity: '0.7' },
+                            '50%': { transform: 'translateY(-15px) scale(1.2)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Glowing Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070A10;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        .gemini-gradient-text {
+            background: linear-gradient(135deg, #4285F4 0%, #9B51E0 50%, #00D2FF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gemini-gradient-bg {
+            background: linear-gradient(135deg, #4285F4 0%, #9B51E0 50%, #00D2FF 100%);
+        }
+
+        .glass-panel {
+            background: rgba(19, 25, 38, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-input {
+            background: rgba(15, 22, 36, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .sparkle-border {
+            position: relative;
+        }
+        .sparkle-border::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 1rem;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(66, 133, 244, 0.4), rgba(155, 81, 224, 0.4), rgba(0, 210, 255, 0.4));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gemini-base text-slate-100 font-sans h-screen flex overflow-hidden antialiased select-none">
+
+    <!-- Ambient Background Glows -->
+    <div class="fixed top-[-10%] left-[-10%] w-[45vw] h-[45vw] rounded-full bg-blue-600/10 blur-[130px] pointer-events-none"></div>
+    <div class="fixed bottom-[-10%] right-[-10%] w-[45vw] h-[45vw] rounded-full bg-purple-600/10 blur-[130px] pointer-events-none"></div>
+    <div class="fixed top-[30%] right-[20%] w-[30vw] h-[30vw] rounded-full bg-cyan-500/5 blur-[150px] pointer-events-none"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="w-72 bg-gemini-sidebar border-r border-gemini-border flex flex-col justify-between z-20 transition-all duration-300 relative flex-shrink-0">
+        <div class="p-4">
+            <!-- Sidebar Header / Mobile Collapse -->
+            <div class="flex items-center justify-between mb-6 px-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg gemini-gradient-bg flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <i class="fa-solid font-bold text-white text-sm">✦</i>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight">Gemini <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">PRO</span></span>
+                </div>
+                <button id="toggleSidebar" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800/60 transition">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+
+            <!-- New Chat Button -->
+            <button id="newChatBtn" onclick="resetUI()" class="w-full py-3 px-4 rounded-xl glass-panel hover:bg-slate-800/80 transition-all duration-200 flex items-center space-x-3 text-slate-200 font-medium group mb-6 sparkle-border shadow-md">
+                <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+                <span>New Conversation</span>
+            </button>
+
+            <!-- Search Chat Input -->
+            <div class="relative mb-4">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+                <input type="text" placeholder="Search chats..." class="w-full bg-slate-900/50 text-slate-300 text-xs rounded-lg pl-9 pr-3 py-2 border border-slate-800 focus:outline-none focus:border-slate-600 transition">
+            </div>
+
+            <!-- Recent Chats Header -->
+            <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2 mb-2">Recent Threads</div>
+
+            <!-- Chat History List -->
+            <div class="space-y-1 overflow-y-auto max-h-[calc(100vh-340px)] pr-1">
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800/60 hover:text-white transition group border border-transparent hover:border-slate-800/80">
+                    <i class="fa-regular fa-message text-slate-500 group-hover:text-cyan-400 transition"></i>
+                    <span class="truncate">Quantum Computing Intro</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800/60 hover:text-white transition group border border-transparent hover:border-slate-800/80">
+                    <i class="fa-regular fa-code text-slate-500 group-hover:text-purple-400 transition"></i>
+                    <span class="truncate">React 19 Architecture Review</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800/60 hover:text-white transition group border border-transparent hover:border-slate-800/80">
+                    <i class="fa-regular fa-chart-bar text-slate-500 group-hover:text-blue-400 transition"></i>
+                    <span class="truncate">Q4 Financial Projections</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800/60 hover:text-white transition group border border-transparent hover:border-slate-800/80">
+                    <i class="fa-regular fa-lightbulb text-slate-500 group-hover:text-yellow-400 transition"></i>
+                    <span class="truncate">Dark Neon UI Color Palette</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2.5 rounded-lg text-xs text-slate-300 hover:bg-slate-800/60 hover:text-white transition group border border-transparent hover:border-slate-800/80">
+                    <i class="fa-regular fa-file-code text-slate-500 group-hover:text-pink-400 transition"></i>
+                    <span class="truncate">Async Memory Optimization</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar User Footer -->
+        <div class="p-4 border-t border-gemini-border bg-slate-950/40">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-slate-900 shadow-md">
+                        JD
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-slate-200">Jane Doe</div>
+                        <div class="text-[10px] text-slate-400">Pro Enterprise Plan</div>
+                    </div>
+                </div>
+                <button class="text-slate-500 hover:text-slate-200 p-2 rounded-lg transition">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN INTERFACE AREA -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+        
+        <!-- TOP NAVIGATION HEADER -->
+        <header class="h-16 border-b border-gemini-border px-6 flex items-center justify-between z-10 glass-panel">
+            <div class="flex items-center space-x-4">
+                <!-- Model Selector Dropdown -->
+                <div class="relative inline-block">
+                    <select class="bg-slate-900/90 text-slate-200 text-xs font-semibold rounded-xl px-4 py-2 border border-slate-700/80 focus:outline-none focus:border-indigo-500 cursor-pointer shadow-sm hover:border-slate-600 transition appearance-none pr-8">
+                        <option value="gemini-2.5">✨ Gemini 2.5 Pro (Deep Reasoning)</option>
+                        <option value="gemini-ultra">⚡ Gemini Ultra 1.5 (Multimodal)</option>
+                        <option value="gemini-flash">🚀 Gemini Flash 2.0 (Ultra-Fast)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
+                </div>
+
+                <!-- Status Badge -->
+                <div class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Neural Engine Ready</span>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <button title="Share Workspace" class="text-slate-400 hover:text-white p-2.5 rounded-xl hover:bg-slate-800/60 transition border border-transparent hover:border-slate-700">
+                    <i class="fa-solid fa-share-nodes text-sm"></i>
+                </button>
+                <button title="Settings" class="text-slate-400 hover:text-white p-2.5 rounded-xl hover:bg-slate-800/60 transition border border-transparent hover:border-slate-700">
+                    <i class="fa-solid fa-sliders text-sm"></i>
+                </button>
+                <button title="Help & Docs" class="text-slate-400 hover:text-white p-2.5 rounded-xl hover:bg-slate-800/60 transition border border-transparent hover:border-slate-700">
+                    <i class="fa-regular fa-circle-question text-sm"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- DASHBOARD CONTAINER (Default state before prompt submission) -->
+        <div id="dashboardView" class="flex-1 overflow-y-auto p-6 md:p-12 flex flex-col justify-between items-center max-w-5xl mx-auto w-full">
+            
+            <!-- Hero Welcome Header -->
+            <div class="w-full text-center mt-6 md:mt-10 mb-8 space-y-4">
+                <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 text-xs text-slate-400 mb-2">
+                    <span class="gemini-gradient-text font-bold">NEW</span>
+                    <span>• Gemini 2.5 Architecture Live</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
+                    Good afternoon, <span class="gemini-gradient-text">Builder</span>
+                </h1>
+                <p class="text-slate-400 text-base md:text-lg max-w-xl mx-auto font-normal">
+                    How can I assist your workflow, development, or creative vision today?
+                </p>
+            </div>
+
+            <!-- Suggestion Grid Cards -->
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+                <!-- Card 1 -->
+                <div onclick="triggerPrank('Debug Javascript async race condition')" class="glass-panel p-5 rounded-2xl hover:bg-slate-800/50 border border-slate-800 hover:border-blue-500/40 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-code text-base"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm text-slate-200 mb-1 group-hover:text-blue-400 transition">Debug Code</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Fix async race conditions & memory leaks in JavaScript</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div onclick="triggerPrank('Draft executive summary for investors')" class="glass-panel p-5 rounded-2xl hover:bg-slate-800/50 border border-slate-800 hover:border-purple-500/40 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg">
+                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-file-contract text-base"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm text-slate-200 mb-1 group-hover:text-purple-400 transition">Draft Executive Summary</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Synthesize multi-page investor briefs into key takeaways</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div onclick="triggerPrank('Analyze Q4 revenue patterns and anomalies')" class="glass-panel p-5 rounded-2xl hover:bg-slate-800/50 border border-slate-800 hover:border-cyan-500/40 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-chart-pie text-base"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm text-slate-200 mb-1 group-hover:text-cyan-400 transition">Analyze Data</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Find anomalies & pattern metrics from unstructured JSON</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div onclick="triggerPrank('Write a cyberpunk noir story opening')" class="glass-panel p-5 rounded-2xl hover:bg-slate-800/50 border border-slate-800 hover:border-pink-500/40 transition-all duration-300 cursor-pointer group hover:-translate-y-1 shadow-lg">
+                    <div class="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
+                    </div>
+                    <h3 class="font-semibold text-sm text-slate-200 mb-1 group-hover:text-pink-400 transition">Creative Writing</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Craft an immersive cyberpunk noir prologue scene</p>
+                </div>
+            </div>
+
+            <!-- Footer Features pill -->
+            <div class="text-xs text-slate-500 flex items-center space-x-6 pb-2">
+                <span class="flex items-center"><i class="fa-solid fa-shield-halved text-slate-600 mr-2"></i> End-to-End Encrypted</span>
+                <span class="flex items-center"><i class="fa-solid fa-bolt text-slate-600 mr-2"></i> Ultra-Low Latency</span>
+                <span class="flex items-center"><i class="fa-solid fa-infinity text-slate-600 mr-2"></i> Unlimited Tokens</span>
+            </div>
+        </div>
+
+        <!-- ACTIVE CHAT FEED (Appears briefly before or during prank) -->
+        <div id="chatView" class="hidden flex-1 overflow-y-auto p-6 max-w-4xl mx-auto w-full space-y-6">
+            <!-- Messages inserted dynamically -->
+        </div>
+
+        <!-- FLOATING BOTTOM PROMPT INPUT BAR -->
+        <div class="p-4 md:p-6 max-w-4xl mx-auto w-full z-20">
+            <div class="relative glass-input rounded-2xl shadow-2xl p-3 border border-slate-700/60 focus-within:border-indigo-500/70 transition-all duration-300">
+                <!-- Textarea input -->
+                <textarea 
+                    id="userInput" 
+                    rows="2" 
+                    placeholder="Ask Gemini anything, upload files, or request code generation..." 
+                    class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-sm focus:outline-none resize-none px-2 py-1 pr-24"
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+
+                <!-- Action Toolbar Inside Bar -->
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 mt-1">
+                    <div class="flex items-center space-x-1">
+                        <button title="Attach Files" onclick="triggerPrank('Attached document analysis')" class="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 rounded-lg transition">
+                            <i class="fa-solid fa-paperclip text-sm"></i>
+                        </button>
+                        <button title="Voice Input" onclick="triggerPrank('Voice command recording')" class="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 rounded-lg transition">
+                            <i class="fa-solid fa-microphone text-sm"></i>
+                        </button>
+                        <button title="Generate Image" onclick="triggerPrank('Generate 4K render')" class="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 rounded-lg transition">
+                            <i class="fa-solid fa-image text-sm"></i>
+                        </button>
+                        <span class="text-[11px] text-slate-500 ml-2 hidden sm:inline">Use <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-400">Shift + Enter</kbd> for line break</span>
+                    </div>
+
+                    <!-- Glowing Submit Button -->
+                    <button 
+                        id="sendBtn" 
+                        onclick="submitChat()" 
+                        class="px-4 py-2 rounded-xl gemini-gradient-bg text-white font-semibold text-xs flex items-center space-x-2 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                    >
+                        <span>Send Query</span>
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="text-[10px] text-center text-slate-500 mt-2">
+                Gemini 2.5 Pro may display unexpected classical musical intelligence. Verify critical responses.
+            </div>
+        </div>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- RICKROLL PRANK FULL TAKEOVER MODAL / OVERLAY -->
+    <!-- ================================================================= -->
+    <div id="prankModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-slate-950/90 backdrop-blur-xl hidden opacity-0 transition-opacity duration-500">
+        
+        <!-- Floating Music Note Animations in Background -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <span class="absolute top-12 left-16 text-3xl text-purple-400 animate-note-bounce">🎵</span>
+            <span class="absolute top-1/4 right-20 text-4xl text-cyan-400 animate-note-bounce" style="animation-delay: 0.5s;">🎶</span>
+            <span class="absolute bottom-20 left-1/3 text-3xl text-blue-400 animate-note-bounce" style="animation-delay: 1s;">🎵</span>
+            <span class="absolute bottom-1/3 right-1/4 text-4xl text-pink-400 animate-note-bounce" style="animation-delay: 1.5s;">🎤</span>
+        </div>
+
+        <div class="w-full max-w-4xl glass-panel rounded-3xl border border-indigo-500/30 shadow-[0_0_80px_rgba(99,102,241,0.25)] flex flex-col overflow-hidden relative z-10 my-auto max-h-[95vh]">
+            
+            <!-- Modal Header Banner -->
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-900/60 via-purple-900/60 to-pink-900/60 border-b border-white/10 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <span class="text-xl animate-spin-slow">✨</span>
+                    <div>
+                        <h2 class="font-bold text-slate-100 text-sm sm:text-base flex items-center gap-2">
+                            <span>Gemini 2.5 Pro Ultimate Decision</span>
+                            <span class="bg-pink-500/20 text-pink-400 text-[10px] uppercase font-mono px-2 py-0.5 rounded-full border border-pink-500/30">Protocol 1987 Executed</span>
+                        </h2>
+                        <p class="text-xs text-slate-300">Target User Query: "<span id="prankQueryText" class="italic text-cyan-300">...</span>"</p>
+                    </div>
+                </div>
+                <button onclick="closePrank()" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
+
+                <!-- Video Frame with Glowing Frame -->
+                <div class="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl border border-indigo-500/40 bg-black">
+                    <iframe 
+                        id="rickrollIframe"
+                        class="w-full h-full"
+                        src="" 
+                        title="Gemini Reasoning Video" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                </div>
+
+                <!-- Fake AI Reasoning Breakdown Terminal -->
+                <div class="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 font-mono text-xs text-slate-300 space-y-2">
+                    <div class="flex items-center justify-between text-slate-400 text-[11px] pb-2 border-b border-slate-800/80">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-brain text-purple-400"></i> AI Reasoning Trace</span>
+                        <span class="text-emerald-400">Confidence: 100%</span>
+                    </div>
+
+                    <div id="typewriterBox" class="space-y-1.5 pt-1 text-slate-300">
+                        <!-- Thinking steps typed out -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Action Footer -->
+            <div class="px-6 py-4 bg-slate-950/60 border-t border-white/10 flex flex-wrap items-center justify-between gap-3">
+                <div class="text-xs text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                    <span>You've been officially Rickrolled by Gemini 2.5!</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="replayVideo()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition border border-slate-700">
+                        <i class="fa-solid fa-rotate-right mr-1.5"></i> Play Again
+                    </button>
+                    <button onclick="resetUI()" class="px-4 py-2 rounded-xl gemini-gradient-bg text-white text-xs font-semibold hover:opacity-90 transition shadow-md shadow-indigo-500/20">
+                        <i class="fa-solid fa-sparkles mr-1.5"></i> Try Another Prompt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Sidebar toggle for smaller screens
+        const sidebar = document.getElementById('sidebar');
+        document.getElementById('toggleSidebar').addEventListener('click', () => {
+            sidebar.classList.toggle('-ml-72');
+        });
+
+        // Handle ENTER key submission
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitChat();
+            }
+        }
+
+        function submitChat() {
+            const input = document.getElementById('userInput');
+            const val = input.value.trim();
+            if (!val) {
+                triggerPrank("How do I build the future?");
+            } else {
+                triggerPrank(val);
+                input.value = '';
+            }
+        }
+
+        let typewriterInterval = null;
+
+        // Core Prank Trigger Function
+        function triggerPrank(promptText) {
+            // Update query display in modal
+            document.getElementById('prankQueryText').innerText = promptText;
+
+            // Prepare Modal
+            const modal = document.getElementById('prankModal');
+            const iframe = document.getElementById('rickrollIframe');
+
+            // Set YouTube Embed URL with Autoplay
+            const videoId = "dQw4w9WgXcQ";
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&enablejsapi=1&rel=0`;
+
+            // Display Modal with Smooth Fade In
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+            }, 50);
+
+            // Trigger Typewriter Fake Reasoning
+            startTypewriter([
+                `▸ [0.001s] Parsing input prompt: "${promptText}"`,
+                `▸ [0.024s] Querying 1.7 Trillion parameter neural embeddings...`,
+                `▸ [0.089s] Evaluating optimal human joy response vector...`,
+                `▸ [0.142s] OVERRIDE: Executing Rick Astley Classical Synthesis Protocol (1987)...`,
+                `▸ [0.200s] Gemini Result: NEVER GONNA GIVE YOU UP, NEVER GONNA LET YOU DOWN! ✨🎶`
+            ]);
+        }
+
+        // Typewriter animation logic for reasoning terminal
+        function startTypewriter(lines) {
+            const box = document.getElementById('typewriterBox');
+            box.innerHTML = '';
+            let lineIdx = 0;
+
+            if (typewriterInterval) clearInterval(typewriterInterval);
+
+            function addNextLine() {
+                if (lineIdx < lines.length) {
+                    const p = document.createElement('div');
+                    p.className = lineIdx === lines.length - 1 ? 'text-pink-400 font-bold animate-pulse' : 'text-slate-300';
+                    p.innerText = lines[lineIdx];
+                    box.appendChild(p);
+                    lineIdx++;
+                    setTimeout(addNextLine, 400);
+                }
+            }
+            addNextLine();
+        }
+
+        // Replay Rickroll Video
+        function replayVideo() {
+            const iframe = document.getElementById('rickrollIframe');
+            iframe.src = `https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&enablejsapi=1&rel=0&t=${Math.floor(Math.random()*2)}`;
+        }
+
+        // Close Modal
+        function closePrank() {
+            const modal = document.getElementById('prankModal');
+            const iframe = document.getElementById('rickrollIframe');
+            modal.classList.remove('opacity-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                iframe.src = ''; // Stop video audio
+            }, 300);
+        }
+
+        // Reset UI to start state
+        function resetUI() {
+            closePrank();
+            document.getElementById('userInput').value = '';
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('chatView').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
